@@ -1,0 +1,21 @@
+Template:Shortcut Administrators, also called sysops, are active and regular Wikipedians who have access to technical features that help with maintenance. Administrators are expected to respect and be familiar with Wikipedia policy as they are known and trusted members of the community. They can protect and delete pages, block other editors, and undo these actions as well. By default, these privileges are granted indefinitely and are only removed under exceptional circumstances involving high level intervention (see Administrator abuse below).
+ᑎᑎᕋᐅᓯᖅᑐᖅ ᓄᑖᖅ—ᐊᑲᐃᓗᑕᖅ ᐃᓄᒃᑎᑐᑦ ᓇᐃᒡᓕᒋᐊᖅᓯᒪᔪᖅ ᑎᑎᖅᑲᖅ. ᓱᓕᐊᖅ ᐂᒌᒧᒦᓇ ᐱᖅ (English-Edmund Peck) ᓱᓕᐊᖅ ᐊᔪᕿᖅᑐᐃᔨ ᑭᒡᒐᖅ ᐃᑦᓴᖅ (1870 ᖁᓕᑦ ᐅᑭᐅᖅ).
+Administrators have the authority to enforce rulings by the Arbitration Committee. Template:Further
+ᒧᕆᐊᓪ |manrial| (Français-Montréal | English-Montreal) ᐅᐃᒍᐃᕐᒥᐅᖅ ᓄᓇᓖᑦ ᑲᓇᑕ ᑎᒍᕚ 1.583.590 ᐃᓐᓄᐳᖅ.
+ᐃᓄᐃᑦ ᐅᖃᐅᓯᓕᕆᔨᐅᑉ. ᐃᓄᑦᑎᑑᖅᐳᑦ ᓄᓇᕗᒻᒥ, ᓄᓇᕕᒻᒥ, ᐊᑯᑭᑦᑐᒻᒥ, ᓄᓇᑦᓯᐊᕗᒻᒥ, ᓄᓇᑦᓯᐊᕐᒥ' ᐊᒻᒪᓗ ᐊᓛᓯᑲᒥ.
+Architecture, architectural arts and sciences
+ᐃᓕᓐᓂᐊᖅᑐᓕᕆᓂᖅ ᐱᓕᕆᔾᔪᓯᖅ ᐃᓕᓐᓂᐊᕈᑎᒋᕚ ᐃᓅᓯᖃᑦᑎᐊᕋᓱᒍᓐᓇᕈᑏᑦ ᐊᒻᒪ ᓇᓪᓕᐅᓯᒪᔪᖅ ᑕᖅᓴᓕᖅᐹ ᐊᒻᒪ ᖃᐅᔨᓴᕐᓂᖅ ᑎᑎᖅᑲᑎᒍᑦ ᖃᓄᐃᓕᐅᖅᑕᐅᖃᑦᑕᕐᓂᑯᓂᒃ ᐃᓗᐊᓂ ᐃᓕᓐᓂᐊᕈᑎᒃᓴᓕᐅᕐᕕᒃ.
+The interface and content is by default mostly in the Inuktitut syllabics. If you want to view it in the Latin script, you have to create an account or log in, go to Special:Preferences, select "ike-latn - inuktitut" in the drop-down box(es) and click on "Save". more info...
+(ᑖᓐᓇ ᓇᐃᑦᑐᒥᒃ ᐅᖃᓕᒫᕐᕕᒃ ᐃᑲᔪᖅᑕᐅᔭᕆᐊᖃᖅᑐᑦ. ᐱᐅᓯᕚᓪᓕᖅᑎᑦᑎᓂᕈᓐᓇᖅᑐᑦ. ᑎᑎᕋᖅᑐᒃᑯᑦ.)
+In the very early days of Wikipedia, all users functioned as administrators, and in principle they still should. Any user can behave in a way befitting an administrator (provided they do not falsely claim to be one), even if they have not been given the extra administrative functions. From early on, it has been pointed out that administrators should never develop into a special subgroup of the community but should be a part of the community like anyone else. However, they are equipped with a few more tools to do some chores that would potentially be harmful if everyone were entrusted with them. Over time, standards to getting appointed administrator have risen, but there are still several administrators created every week.
+manrial
+ᓄᓇᕗᑦ(ᒧᕐᒋᓐ ᓄᑖᓄᑦ)—ᐅᖓᕙ ᖃᐅᒪᕋᔭᐅᑉ ᐃᒃᑭᖓ ᐃᒻᒪᒃᓯᒪᔪᖅ ᐊᐃᑉᐸᖅ ᑲᓇᑕᒥ ᐊᑭᑐᔫᑎᑦ ᓄᓇᓖᑦ ᐃᖃᓗᐃᑦ. ᐋᓐ ᒦᖀᑦᔩᒃ ᐦᐋᓐᓱᓐ ᓄᓇᕗᑦ ᐃᓱᕋᖅᑐᓂᖅ.
+ᐃᓄᒃᑎᑐᑦ/ᐃᓄᐃᓐᓇᖅᑐᓐ ᐅᖃᑎᐅᓯᓖᑦ ᐅᓄᕐᓂᖅᐹᖑᕗᑦ ᓄᓇᕗᒻᒥ. 70ᐳᓴᓐ ᓄᓇᕗᒻᒥᐅᑦ ᐃᓄᒃᑎᑦᑐᖅ ᐅᖃᐅᓯᕐᖓᐅᑎᖃᕐᒪᑎᑕ. ᐃᓄᐃᑦ ᐅᖃᐅᒥᖏᑦ ᐊᔾᔨᒌᑦᑎᐊᖏᒃᑲᓗᐊᖅᖢᑎᒃ ᓄᓇᓖᑦ ᒪᓕᒃᖢᒋᑦ, ᐃᓄᐃᓐᓇᖅᑐᓐ ᐃᓚᐅᓪᓗᓂ, ᐅᖃᐅᓯᕆᔭᐅᔪᖅ ᐅᐊᓕᓂᖅᐸᓯᖓᓂᕐᒥᐅᑕᐅᔪᓂ ᓄᓇᕗᒻᒥ. ᐃᓄᐃᓐᓇᖅᑐᓐ ᖃᓕᐅᔮᖅᐸᐃᑎᑐᑦ ᐃᓅᔨᖓᔪᑎᑐᑦ ᑎᑎᕋᐅᓯᖃᐃᔾᔪᔪᒡ ᑕᖅᓴᓕᖅᐹᖅᑐᑦ ᐃᓄᒃᑎᑑᖏᑦᑐᐴ.
+ilinniaqtuliriniq pilirijjusiq ilinniarutigivaa inuusiqattiarasugunnarutiit nalliusimajuq amma taqsaliqpaa amma Qaujisarniq titiqqatigut qanuiliuqtauqattarnikunik iluani ilinniarutiksaliurvik.
+Inuktitut/inuinnaqtun uqatisiliit unurniqpaanguvut nunavummi. 70pusan nunavummiut inuktittuq uqausirngautiqarmatita. Inuit uqaumingit ayyigiittiangikkaluaqłutik nunaliit milikługit, inuinnaqtun ilaulluni, uqausiriyauyuq uiliniqpasinganiqmiutauyuni nunavummi. Inuinnaqtun qaliuyaaqpaititut inuungayutitut titirrausiqaiyyuyug taqsaliqpaaqtut inuktituungittupuu.
+The community does look to administrators to perform essential housekeeping chores that require the extra access administrators are entrusted with. Among them are watching the Articles for deletion debates and carrying out the consensus of the community on keeping or deleting these articles, keeping an eye on new and changed articles to swiftly delete obvious vandalism, and meeting user requests for help that require administrative access. Since administrators are expected to be experienced members of the community, users seeking help will often turn to an administrator for advice and information. In general, administrators acting in this role are neutral. They do not have any direct involvement in the issues they are helping people with.
+ᐃᓄᐃᑦ (ᓄᓇᖃᖅᑳᖅᓯᒪᔪᑦ) ᓄᓇᕗᒥᐅᑦ ᐃᓄᒃᑎᑦᑐᖅ ᐅᖃᐅᓯᕐᖓᐅᑎᖃᕐᒪᑕ. ᐃᓄᐃᑦ ᐅᖃᐅᓯᖏᑦ ᐊᔾᔨᒌᙱᑦᑑᑎᐅᒐᓗᐊᖅᑐᑎᒃ ᓄᓇᓖᑦ ᒪᓕᒃᖢᒋᑦ, ᐃᓄᐃᓐᓇᖅᑐᓐ ᐃᓚᐅᓪᓗᓂ, ᐅᖃᐅᓯᕆᔭᐅᔪᖅ ᐅᐊᓕᓂᖅᐸᓯᖓᓂᕐᒥᐅᑕᐅᔪᓂ ᓄᓇᕗᒥ. ᐃᓄᐃᓐᓇᖅᑐᓐ ᖃᓕᐅᔮᖅᐸᐃᑎᑐᑦ ᐃᓅᔨᖓᔪᖅᑎᑐᑦ ᑎᑎᕋᐅᓯᖃᖅᑐᑦ ᖃᓂᐅᔮᖅᐸᐃᑎᑑᖓᙱᑦᑐᑦ ᑎᑎᕋᐅᓯᖏᑦ.
+ᐊᑐᕈᓐᓇᖅᐱᑦ ᐃᓱᒪᐃᓐᓇᑦᑎᐊᖅ ᐅᖃᓕᒫᒐᕐᔪᐊᖅ
+ᐃᓄᓕᕆᔨ ᐱᔪᖕᓇᖅᑐᖅ ᐊᑲᕐᕿᕗᖅ ᐊᑐᐃᓐᓇᓯᕗᖅ ᑐᑭᐊ.
+Fashion, clothing, garmentry - both traditional and southern.
+ᐃᒡᓗᕐᔪᐊᑦ ᐋᖅᑭᒃᓯᒪᓂᖏᑦ
