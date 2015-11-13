@@ -591,7 +591,7 @@ def tokenize(stream):
     line = quote_norm(line)
     line = tokenizer(line)
     #s/(\p{Devanagari}{2}[A-Za-z0-9! ,.\@\p{Devanagari}]+?)\s+(\.)(\s*$|\s+\|\|\|)/$1 \x{0964}$3/s;
-    line = re.sub(' al - ', ' al-', line)
+    line = re.sub(r'(\b[Aa])l - ', r'\1l-', line, flags=re.UNICODE)
     if not args.no_english_apos:
       line = re.sub(r' \' (s|m|ll|re|d|ve) ', r" '\1 ", line, flags=re.IGNORECASE)
       line = re.sub('n \' t ', ' n\'t ', line, flags=re.IGNORECASE)
