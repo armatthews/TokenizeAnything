@@ -228,6 +228,12 @@ def quote_norm(line):
   line = line.replace('\ufb02', 'fl')  # "fl" ligature
   line = line.replace('\ufb03', 'ffi') # "ffi" ligature
   line = line.replace('\ufb04', 'ffl') # "ffl" ligature
+  line = line.replace('\u0132', 'Ij')  # "Ij" ligature
+  line = line.replace('\u0133', 'ij')  # "ij" ligature
+  line = line.replace('\ufb06', 'st')  # "st" ligature
+  line = line.replace('\u00c6', 'Ae')  # "Ae" ligature
+  line = line.replace('\u00e6', 'ae')  # "ae" ligature
+  line = line.replace('\ufb05', 'st')  # "st" ligature
 
   line = line.replace('β', 'ß') # WMT 2010 error
 
