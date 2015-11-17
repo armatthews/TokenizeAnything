@@ -5,20 +5,9 @@ import argparse
 import subprocess
 import unicodedata
 
-# TODO: I'm worried that \u0000 sequences don't work on utf8 encoded text.
-
-def locate_uconv():
-  # Instead of falling back to iconv, throw an error if you can't find uconv
-  return '/usr/bin/uconv'
-
 def utf8_normalize(stream):
-  uconv_bin = locate_uconv()
-  uconv = subprocess.Popen([uconv_bin] + '-f utf8 -t utf8 -x Any-NFKC --callback skip'.split(), stdin=stream, stdout=subprocess.PIPE, shell=False)
-  for line in uconv.stdout:
-    line = re.sub(r'[\x00-\x1F]+', ' ', line)
-    line = re.sub(r'\s+', ' ', line)
-    line = line.strip()
-    yield line
+  for line in stream:
+    yield unicodedata.normalize('NFKC', line.decode('utf-8'))
 
 def html_hex_entity(match):
   u = int(match.group(1), 16)
@@ -62,180 +51,160 @@ def quote_norm(line):
   line = re.sub(r'&\#([0-9]+);', html_entity, line)
 
   # Regularlize spaces:
-  zero_width_spaces = ['\u00ad', # soft hyphen
-                       '\u200C'] # zero-width non-joiner
+  zero_width_spaces = [u'\u00ad', # soft hyphen
+                       u'\u200C'] # zero-width non-joiner
   line = re.sub('|'.join(zero_width_spaces), '', line)
 
-  spaces = ['\u00a0', # non-breaking space
-            '\u2009', # thin space
-            '\u2028', # "line separator"
-            '\u2029', # "paragraph separator"
-            '\u202a', # "left-to-right embedding"
-            '\u202b', # "right-to-left embedding" 
-            '\u202c', # "pop directional formatting"
-            '\u202d', # "left-to-right override"
-            '\u202e', # "right-to-left override"
-            '\u0085', # "next line"
-            '\ufffd', # "replacement character"
-            '\ufeff', # byte-order mark
-            '\ufdd3'] # "unicode non-character"
+  spaces = [u'\u00a0', # non-breaking space
+            u'\u2009', # thin space
+            u'\u2028', # "line separator"
+            u'\u2029', # "paragraph separator"
+            u'\u202a', # "left-to-right embedding"
+            u'\u202b', # "right-to-left embedding" 
+            u'\u202c', # "pop directional formatting"
+            u'\u202d', # "left-to-right override"
+            u'\u202e', # "right-to-left override"
+            u'\u0085', # "next line"
+            u'\ufffd', # "replacement character"
+            u'\ufeff', # byte-order mark
+            u'\ufdd3'] # "unicode non-character"
   line = re.sub('|'.join(spaces), ' ', line)
 
   # Convert other Windows 1252 characters to UTF-8
-  line = line.replace('\u0080', '\u20ac') # euro sign
-  line = line.replace('\u0095', '\u2022') # bullet
-  line = line.replace('\u0099', '\u2122') # trademark sign
+  line = line.replace(u'\u0080', u'\u20ac') # euro sign
+  line = line.replace(u'\u0095', u'\u2022') # bullet
+  line = line.replace(u'\u0099', u'\u2122') # trademark sign
 
   # Currency and measure conversions:
   line = re.sub(r' (\d\d): (\d\d)', r' \1:\2', line)
-  line = line.replace('\u20a0', ' EUR ')
-  line = line.replace('\u20ac', ' EUR ')
-  line = line.replace('\u00a3', ' GBP ')
-  line = re.sub(r'(\W)([A-Z]+\$?)(\d*\.\d+|\d+)', r'\1\2 \3', line)
-  line = re.sub(r'(\W)(euro?)(\d*\.\d+|\d+)', r'\1EUR \3', line)
+  line = line.replace(u'\u20a0', ' EUR ')
+  line = line.replace(u'\u20ac', ' EUR ')
+  line = line.replace(u'\u00a3', ' GBP ')
+  line = re.sub(r'(\W)([A-Z]+\$?)(\d*\.\d+|\d+)', r'\1\2 \3', line) # AU$12.34
+  line = re.sub(r'(\W)(euro?)(\d*\.\d+|\d+)', r'\1EUR \3', line, flags=re.IGNORECASE) # EUR12.34
 
   # Ridiculous double conversions, UTF8 -> Windows 1252 -> UTF8:
-  line = line.replace('ï¿½c', '--')                 # long dash
-  line = line.replace('\u00e2\u20acoe', '"')        # opening double quote
-  line = line.replace('\u00e2\u20ac\u009c', '"')    # opening double quote
-  line = line.replace('\u00e2\u20ac\u009d', '"')    # closing double quote
-  line = line.replace('\u00e2\u20ac\u2122', '\'')   # apostrophe
-  line = line.replace('\u00e2\u20ac\u201c', ' -- ') # en dash?
-  line = line.replace('\u00e2\u20ac\u201d', ' -- ') # em dash?
+  line = line.replace(u'ï¿½c', '--')                 # long dash
+  line = line.replace(u'\u00e2\u20acoe', '"')        # opening double quote
+  line = line.replace(u'\u00e2\u20ac\u009c', '"')    # opening double quote
+  line = line.replace(u'\u00e2\u20ac\u009d', '"')    # closing double quote
+  line = line.replace(u'\u00e2\u20ac\u2122', '\'')   # apostrophe
+  line = line.replace(u'\u00e2\u20ac\u201c', ' -- ') # en dash?
+  line = line.replace(u'\u00e2\u20ac\u201d', ' -- ') # em dash?
 
-  line = line.replace('\u00e2\u0080\u0098', r'\'') # single quote?
-  line = line.replace('\u00e2\u0080\u0099', r'\'') # single quote?
-  line = line.replace('\u00e2\u0080\u009c', r'"')  # double quote?
-  line = line.replace('\u00e2\u0080\u009d', r'"')  # double quote?
-  line = line.replace('\u00c3\u009f', '\u00df')    # esset
-  line = line.replace('\u00c3\u0178', '\u00df')    # esset
-  line = line.replace('\u00c3\u00a4', '\u00e4')    # a umlaut
-  line = line.replace('\u00c3\u00b6', '\u00f6')    # o umlaut
-  line = line.replace('\u00c3\u00bc', '\u00fc')    # u umlaut
-  line = line.replace('\u00c3\u0084', '\u00c4')    # A umlaut: create no C4s after this
-  line = line.replace('\u00c3\u201e', '\u00c4')    # A umlaut: create no C4s after this
-  line = line.replace('\u00c3\u0096', '\u00d6')    # O umlaut
-  line = line.replace('\u00c3\u2013', '\u00d6')    # O umlaut
-  line = line.replace('\u00c3\u00bc', '\u00dc')    # U umlaut
-  line = line.replace('\u0080', '\20ac')           # euro sign
-  line = line.replace('\u0095', '\2022')           # bullet
-  line = line.replace('\u0099', '\2122')           # trademark sign
+  line = line.replace(u'\u00e2\u0080\u0098', r'\'') # single quote?
+  line = line.replace(u'\u00e2\u0080\u0099', r'\'') # single quote?
+  line = line.replace(u'\u00e2\u0080\u009c', r'"')  # double quote?
+  line = line.replace(u'\u00e2\u0080\u009d', r'"')  # double quote?
+  line = line.replace(u'\u00c3\u009f', u'\u00df')    # esset
+  line = line.replace(u'\u00c3\u0178', u'\u00df')    # esset
+  line = line.replace(u'\u00c3\u00a4', u'\u00e4')    # a umlaut
+  line = line.replace(u'\u00c3\u00b6', u'\u00f6')    # o umlaut
+  line = line.replace(u'\u00c3\u00bc', u'\u00fc')    # u umlaut
+  line = line.replace(u'\u00c3\u0084', u'\u00c4')    # A umlaut: create no C4s after this
+  line = line.replace(u'\u00c3\u201e', u'\u00c4')    # A umlaut: create no C4s after this
+  line = line.replace(u'\u00c3\u0096', u'\u00d6')    # O umlaut
+  line = line.replace(u'\u00c3\u2013', u'\u00d6')    # O umlaut
+  line = line.replace(u'\u00c3\u00bc', u'\u00dc')    # U umlaut
+  line = line.replace(u'\u0080', u'\u20ac')           # euro sign
+  line = line.replace(u'\u0095', u'\u2022')           # bullet
+  line = line.replace(u'\u0099', u'\u2122')           # trademark sign
 
   # Regularize quotes:
-  line = line.replace('ˇ', '\'')      # caron
-  line = line.replace('´', '\'')      # acute accent
-  line = line.replace('`', '\'')      # grave accent
-  line = line.replace('ˉ', '\'')      # modified letter macron
-  line = line.replace(' ,,', '"')     # ghetto low-99 quote
-  line = line.replace('``', '"')      # latex-style left quote
-  line = line.replace('\'\'', '"')    # latex-style right quote
-  line = line.replace('\u300c', '"')  # left corner bracket
-  line = line.replace('\u300d', '"')  # right corner bracket
-  line = line.replace('\u3003', '"')  # ditto mark
-  line = line.replace('\u00a8', '"')  # diaeresis
-  line = line.replace('\u0092', '\'') # curly apostrophe
-  line = line.replace('\u2019', '\'') # curly apostrophe
-  line = line.replace('\uf03d', '\'') # curly apostrophe
-  line = line.replace('\u00b4', '\'') # curly apostrophe
-  line = line.replace('\u2018', '\'') # curly single open quote
-  line = line.replace('\u201a', '\'') # low-9 quote
-  line = line.replace('\u0093', '"')  # curly left quote
-  line = line.replace('\u201c', '"')  # curly left quote
-  line = line.replace('\u0094', '"')  # curly right quote
-  line = line.replace('\u201d', '"')  # curly right quote
-  line = line.replace('\u2033', '"')  # curly right quote
-  line = line.replace('\u201e', '"')  # low-99 quote
-  line = line.replace('\u0084', '"')  # low-99 quote (bad enc)
-  line = line.replace('\u201f', '"')  # high-rev-99 quote
-  line = line.replace('\u00ab', '"')  # opening guillemet
-  line = line.replace('\u00bb', '"')  # closing guillemet
-  line = line.replace('\u0301', '\'') # combining acute accent
-  line = line.replace('\u203a', '"')  # angle quotation mark
-  line = line.replace('\u2039', '"')  # angle quotation mark
+  line = line.replace(u'ˇ', '\'')      # caron
+  line = line.replace(u'´', '\'')      # acute accent
+  line = line.replace(u'`', '\'')      # grave accent
+  line = line.replace(u'ˉ', '\'')      # modified letter macron
+  line = line.replace(u' ,,', '"')     # ghetto low-99 quote
+  line = line.replace(u'``', '"')      # latex-style left quote
+  line = line.replace(u'\'\'', '"')    # latex-style right quote
+  line = line.replace(u'\u300c', '"')  # left corner bracket
+  line = line.replace(u'\u300d', '"')  # right corner bracket
+  line = line.replace(u'\u3003', '"')  # ditto mark
+  line = line.replace(u'\u00a8', '"')  # diaeresis
+  line = line.replace(u'\u0092', '\'') # curly apostrophe
+  line = line.replace(u'\u2019', '\'') # curly apostrophe
+  line = line.replace(u'\uf03d', '\'') # curly apostrophe
+  line = line.replace(u'\u00b4', '\'') # curly apostrophe
+  line = line.replace(u'\u2018', '\'') # curly single open quote
+  line = line.replace(u'\u201a', '\'') # low-9 quote
+  line = line.replace(u'\u0093', '"')  # curly left quote
+  line = line.replace(u'\u201c', '"')  # curly left quote
+  line = line.replace(u'\u0094', '"')  # curly right quote
+  line = line.replace(u'\u201d', '"')  # curly right quote
+  line = line.replace(u'\u2033', '"')  # curly right quote
+  line = line.replace(u'\u201e', '"')  # low-99 quote
+  line = line.replace(u'\u0084', '"')  # low-99 quote (bad enc)
+  line = line.replace(u'\u201f', '"')  # high-rev-99 quote
+  line = line.replace(u'\u00ab', '"')  # opening guillemet
+  line = line.replace(u'\u00bb', '"')  # closing guillemet
+  line = line.replace(u'\u0301', '\'') # combining acute accent
+  line = line.replace(u'\u203a', '"')  # angle quotation mark
+  line = line.replace(u'\u2039', '"')  # angle quotation mark
 
   # Space inverted punctuation:
-  line = line.replace('¡', ' ¡ ')
-  line = line.replace('¿', ' ¿ ')
+  line = line.replace(u'¡', u' ¡ ')
+  line = line.replace(u'¿', u' ¿ ')
 
   # Russian abbreviations:
-  line = line.replace(' п. п. ', ' п.п. ')
-  line = line.replace(' ст. л. ', ' ст.л. ')
-  line = line.replace(' т. е. ', ' т.е. ')
-  line = line.replace(' т. к. ', ' т.к. ')
-  line = line.replace(' т. ч. ', ' т.ч. ')
-  line = line.replace(' т. д. ', ' т.д. ')
-  line = line.replace(' т. п. ', ' т.п. ')
-  line = line.replace(' и. о. ', ' и.о. ')
-  line = line.replace(' с. г. ', ' с.г. ')
-  line = line.replace(' г. р. ', ' г.р. ')
-  line = line.replace(' т. н. ', ' т.н. ')
-  line = line.replace(' т. ч. ', ' т.ч. ')
-  line = line.replace(' н. э. ', ' н.э. ')
+  line = line.replace(u' п. п. ', u' п.п. ')
+  line = line.replace(u' ст. л. ', u' ст.л. ')
+  line = line.replace(u' т. е. ', u' т.е. ')
+  line = line.replace(u' т. к. ', u' т.к. ')
+  line = line.replace(u' т. ч. ', u' т.ч. ')
+  line = line.replace(u' т. д. ', u' т.д. ')
+  line = line.replace(u' т. п. ', u' т.п. ')
+  line = line.replace(u' и. о. ', u' и.о. ')
+  line = line.replace(u' с. г. ', u' с.г. ')
+  line = line.replace(u' г. р. ', u' г.р. ')
+  line = line.replace(u' т. н. ', u' т.н. ')
+  line = line.replace(u' т. ч. ', u' т.ч. ')
+  line = line.replace(u' н. э. ', u' н.э. ')
 
-  # Convert foreign numerals into Arabic numerals
-  line = line.decode('utf-8')
+  # Convert foreign numerals into Arabic numerals 
   line = ''.join([str(unicodedata.digit(c)) if c.isdigit() else c for c in line])
-  line = line.encode('utf-8')
    
-  # Hopefully the above handles all of these cases
-  #tr/०-९/0-9/; # devangari, starts at \u0966
-  #tr/౦-౯/0-9/; # telugu, starts at \u0c66
-  #tr/೦-೯/0-9/; # kannada, starts at \u0ce6
-  #tr/೦-௯/0-9/; # tamil, starts at \u0be6
-  #tr/൦-൯/0-9/; # malayalam, starts at \u0d66
-  # Other interesting digit sets:
-  # bengali (09e6), gurmukhi (0a66), jugarati (0ae6), oriya (0b66)
-  # sinhala lith (0de6), thai (0e50), lao (0ed0), tiben (0f20)
-  # myanmar (1040/1090), kmer (17e0), mongolian (1810), limbu (1946)
-  # new tai (19d0), tai tham (1a80/1a90), balinese (1b50), sudanese (1bb0)
-  # lepcha (1c40), ol chiki (1c50), vai (a620), saurashtra (a8d0)
-  # kayah li (a900), javanese (a9d0), myanmar tai laing (a9f0), cham(aa50)
-  # meetei (abf0), osmanya (104a0), rhami (11066), sora sompeng (110f0)
-  # chkma (11136), sharada (111d0), khudawadi (112f0), tirhuta (114d0),
-  # modi (11650), takri (116c0), ahom (11730), warang citi (118e0)
-  # mro (16a60), pahawn hmong (16b50)
-
   # Random punctuation:
-  line = line.replace('！', '!')
-  line = line.replace('-', '-')
-  line = line.replace('～', '~')
-  line = line.replace('、', ',')
-  #line = line.replace('。', '.') # This line was commented out in the perl version too
-  line = line.replace('\u0085', '...')
-  line = line.replace('…', '...')
-  line = line.replace('―', '--')
-  line = line.replace('–', '--')
-  line = line.replace('─', '--')
-  line = line.replace('—', '--')
-  line = line.replace('\u0097', '--')
-  line = line.replace('•', ' * ')
-  line = line.replace('\*', ' * ')
-  line = line.replace('،', ',')
-  line = line.replace('؟', '?')
-  line = line.replace('ـ', ' ')
-  line = line.replace('Ã ̄', 'i')
-  line = line.replace('â€™', '\'')
-  line = line.replace('â€"', '"')
-  line = line.replace('؛', ';')
+  line = line.replace(u'！', '!')
+  line = line.replace(u'-', '-')
+  line = line.replace(u'～', '~')
+  line = line.replace(u'、', ',')
+  #line = line.replace(u'。', '.')
+  line = line.replace(u'\u0085', '...')
+  line = line.replace(u'…', '...')
+  line = line.replace(u'―', '--')
+  line = line.replace(u'–', '--')
+  line = line.replace(u'─', '--')
+  line = line.replace(u'—', '--')
+  line = line.replace(u'\u0097', '--')
+  line = line.replace(u'•', ' * ')
+  line = line.replace(u'\*', ' * ')
+  line = line.replace(u'،', ',')
+  line = line.replace(u'؟', '?')
+  line = line.replace(u'ـ', ' ')
+  line = line.replace(u'Ã ̄', 'i')
+  line = line.replace(u'â€™', '\'')
+  line = line.replace(u'â€"', '"')
+  line = line.replace(u'؛', ';')
 
   # Regularize ligatures:
-  line = line.replace('\u009c', 'oe')  # "oe" ligature
-  line = line.replace('\u0153', 'oe')  # "oe" ligature
-  line = line.replace('\u008c', 'Oe')  # "OE" ligature
-  line = line.replace('\u0152', 'Oe')  # "OE" ligature
-  line = line.replace('\ufb00', 'ff')  # "ff" ligature
-  line = line.replace('\ufb01', 'fi')  # "fi" ligature
-  line = line.replace('\ufb02', 'fl')  # "fl" ligature
-  line = line.replace('\ufb03', 'ffi') # "ffi" ligature
-  line = line.replace('\ufb04', 'ffl') # "ffl" ligature
-  line = line.replace('\u0132', 'Ij')  # "Ij" ligature
-  line = line.replace('\u0133', 'ij')  # "ij" ligature
-  line = line.replace('\ufb06', 'st')  # "st" ligature
-  line = line.replace('\u00c6', 'Ae')  # "Ae" ligature
-  line = line.replace('\u00e6', 'ae')  # "ae" ligature
-  line = line.replace('\ufb05', 'st')  # "st" ligature
+  line = line.replace(u'\u009c', 'oe')  # "oe" ligature
+  line = line.replace(u'\u0153', 'oe')  # "oe" ligature
+  line = line.replace(u'\u008c', 'Oe')  # "OE" ligature
+  line = line.replace(u'\u0152', 'Oe')  # "OE" ligature
+  line = line.replace(u'\ufb00', 'ff')  # "ff" ligature
+  line = line.replace(u'\ufb01', 'fi')  # "fi" ligature
+  line = line.replace(u'\ufb02', 'fl')  # "fl" ligature
+  line = line.replace(u'\ufb03', 'ffi') # "ffi" ligature
+  line = line.replace(u'\ufb04', 'ffl') # "ffl" ligature
+  line = line.replace(u'\u0132', 'Ij')  # "Ij" ligature
+  line = line.replace(u'\u0133', 'ij')  # "ij" ligature
+  line = line.replace(u'\ufb06', 'st')  # "st" ligature
+  line = line.replace(u'\u00c6', 'Ae')  # "Ae" ligature
+  line = line.replace(u'\u00e6', 'ae')  # "ae" ligature
+  line = line.replace(u'\ufb05', 'st')  # "st" ligature
 
-  line = line.replace('β', 'ß') # WMT 2010 error
+  line = line.replace(u'β', u'ß') # WMT 2010 error
 
   # Strip extra spaces:
   line = re.sub(r'\s+', ' ', line)
@@ -245,7 +214,7 @@ def quote_norm(line):
 ### remove punct on the right side
 ### e.g., xxx@yy.zz, => xxx@yy.zz ,
 def proc_rightpunc(token):
-  token = re.sub('((\u0964' r'|\.|\,|\;|\!|:|\?|\"|\)|\]|\}|\>|\-)+)$', r' \1 ', token)
+  token = re.sub(u'((\u0964' r'|\.|\,|\;|\!|:|\?|\"|\)|\]|\}|\>|\-)+)$', r' \1 ', token)
   if re.search(r'\s', token):
     return tokenize_line(token)
   else:
@@ -277,7 +246,7 @@ def deep_proc_token(token):
   ##### step 0: if it mades up of all puncts, remove one punct at a time.
   # Note: We define "punctuation" as anything not in one of these pre-defined "letter" character classes
   if not re.search(r'\w|\d', token, flags=re.UNICODE):
-    if re.match(r'^(\!+|\@+|\++|\=+|\*+|\<+|\>+|\|+|\?+|' '\u0964' + r'+|\.+|\-+|\_+|\&+)$', token):
+    if re.match(r'^(\!+|\@+|\++|\=+|\*+|\<+|\>+|\|+|\?+|' + u'\u0964' + r'+|\.+|\-+|\_+|\&+)$', token):
       return token
     match = re.match(r'^(.)(.+)$', token)
     assert match is not None
@@ -287,18 +256,18 @@ def deep_proc_token(token):
   t2 = r'\`|\!|\@|\+|\=|\[|\]|\<|\>|\||\(|\)|\{|\}|\?|\"|;|●|○'
   s = re.sub(r'^((' + t2 + r')+)', r'\1 ', token)
   if s != token:
-    s = re.sub('"', '“', s, 1)
+    s = re.sub('"', u'“', s, 1)
     return tokenize_line(s)
 
   s = re.sub(r'((' + t2 + r')+)$', r' \1', token)
   if s != token:
-    s = s.replace('"', '”')
+    s = s.replace('"', u'”')
     return tokenize_line(s)
 
   ##### step 2: separate by punct T2 in any position
   s = re.sub(r'((' + t2 + r')+)', r' \1 ', token)
   if s != token:
-    s = s.replace('"', '”') # probably before punctuation char
+    s = s.replace('"', u'”') # probably before punctuation char
     return tokenize_line(s)
 
   ##### step 3: deal with special puncts in T3.
@@ -547,13 +516,7 @@ def proc_token(token):
   if token.lower() in dict_hash:
     return token
 
-  ## step 4: check word_patterns
-  # TODO: where do these patterns come from?
-  #for pattern in word_patterns:
-  #  if re.search(pattern, token.lower()):
-  #    return token
-
-  ## step 5: call deep tokenization
+  ## step 4: call deep tokenization
   return deep_proc_token(token)
 
 def tokenize_line(line):
@@ -567,7 +530,7 @@ def tokenize_line(line):
   return ' '.join(new_parts)
 
 def tokenizer(line):
-  line = line.replace('\u0970', '.') # Devanagari abbreviation character
+  line = line.replace(u'\u0970', '.') # Devanagari abbreviation character
   # markup
   if re.search(r'^(\[b\s+|\]b|\]f|\[f\s+)', line) or \
      re.search(r'^\[[bf]$', line) or \
@@ -575,7 +538,7 @@ def tokenizer(line):
      re.search(r'^<DOC', line) or \
      re.search(r'^<\/DOC', line):
     return line
-  line = re.sub('(\u0964+)',r' \1', line) #Devanagari end of sentence
+  line = re.sub(u'(\u0964+)',r' \1', line) #Devanagari end of sentence
   line = tokenize_line(line)
   line = line.strip()
   line = re.sub(r'\s+', ' ', line)
@@ -601,14 +564,13 @@ def tokenize(stream):
   for line in utf8_normalize(stream):
     line = quote_norm(line)
     line = tokenizer(line)
-    #s/(\p{Devanagari}{2}[A-Za-z0-9! ,.\@\p{Devanagari}]+?)\s+(\.)(\s*$|\s+\|\|\|)/$1 \x{0964}$3/s;
     line = re.sub(r'(\b[Aa])l - ', r'\1l-', line, flags=re.UNICODE)
     if not args.no_english_apos:
       line = re.sub(r' \' (s|m|ll|re|d|ve) ', r" '\1 ", line, flags=re.IGNORECASE)
       line = re.sub('n \' t ', ' n\'t ', line, flags=re.IGNORECASE)
     line = line.strip()
-    #s/(\d+)(\.+)$/$1 ./
-    #s/(\d+)(\.+) \|\|\|/$1 . |||/;
+    line = re.sub(r'(\d+)(\.+)$', r'\1 .', line)
+    line = re.sub(r'(\d+)(\.+)\s*\|\|\|', r'\1 . |||')
     yield line
 
 def load_token_list(filename):
@@ -623,7 +585,7 @@ def load_token_list(filename):
 parser = argparse.ArgumentParser('Tokenizes text in a reasonable way for most languages. Reads input corpus from stdin and writes results to stdout.')
 parser.add_argument('--unbuffered', '-u', action='store_true', help='Use unbuffered line mode')
 parser.add_argument('--token_list', type=str, default='/usr1/home/austinma/git/cdec/corpus/support/token_list', help='List of tokens that should not be segmented')
-parser.add_argument('--split_on_dollar_sign', type=int, default=2)
+parser.add_argument('--split_on_dollar_sign', type=int, default=2, help='0=Never split, 1=Always split, 2=Split only when followed by a number')
 parser.add_argument('--split_on_sharp_sign', type=int, default=2)
 parser.add_argument('--split_on_tilde', type=int, default=2)
 parser.add_argument('--split_on_circ', type=int, default=2)
@@ -640,4 +602,4 @@ dict_hash = load_token_list(args.token_list)
 
 output = tokenize(sys.stdin)
 for line in output:
-  print line
+  print line.encode('utf-8')
