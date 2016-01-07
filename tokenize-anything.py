@@ -226,7 +226,7 @@ def proc_rightpunc(token):
 ##      T1 (2):   the punct is always a token by itself no matter where it
 ###           appears:   " ;
 ##      T2 (15):  the punct that can be a part of words made of puncts only.
-##               ` ! @ = [ ] ( ) { } | < > ?
+##               ` ! @ + = [ ] < > | ( ) { } ?
 ##      T3 (15):  the punct can be part of a word that contains [a-z\d]
 ##        T3: ~ ^ & : , # * % - _ \ / . $ '
 ##             infix: ~ (12~13), ^ (2^3), & (AT&T),  : ,
@@ -252,22 +252,43 @@ def deep_proc_token(token):
     assert match is not None
     return match.group(1) + ' ' + proc_token(match.group(2))
 
-  ##### step 1: separate by punct T2 on the boundary
-  t2 = r'\`|\!|\@|\+|\=|\[|\]|\<|\>|\||\(|\)|\{|\}|\?|\"|;|●|○'
+  ##### step 1.1: separate by quotes on the boundary
+  if token[0] == '"':
+    s = u'“ ' + token[1:]
+    return tokenize_line(s)
+
+  if token[-1] == '"':
+    s = token[:-1] + u' ”'
+    return tokenize_line(s)
+
+  ##### step 1.2: separate by punct T1 on the boundary
+  t1 = r';'
+  s = re.sub(r'^((' + t1 + r'))', r'\1 ', token)
+  if s != token:
+    return tokenize_line(s)
+
+  s = re.sub(r'((' + t1 + r'))$', r' \1', token)
+  if s != token:
+    return tokenize_line(s)
+
+  ##### step 1.3: separate by punct T2 in any position
+  s = re.sub(r'((' + t1 + r'))', r' \1 ', token)
+  if s != token:
+    return tokenize_line(s)
+
+  ##### step 2.1: separate by punct T2 on the boundary
+  t2 = r'\`|\!|\@|\+|\=|\[|\]|\<|\>|\||\(|\)|\{|\}|\?|●|○|;'
   s = re.sub(r'^((' + t2 + r')+)', r'\1 ', token)
   if s != token:
-    s = re.sub('"', u'“', s, 1)
     return tokenize_line(s)
 
   s = re.sub(r'((' + t2 + r')+)$', r' \1', token)
   if s != token:
-    s = s.replace('"', u'”')
     return tokenize_line(s)
 
-  ##### step 2: separate by punct T2 in any position
+  ##### step 2.2: separate by punct T2 in any position
   s = re.sub(r'((' + t2 + r')+)', r' \1 ', token)
   if s != token:
-    s = s.replace('"', u'”') # probably before punctuation char
     return tokenize_line(s)
 
   ##### step 3: deal with special puncts in T3.
@@ -451,6 +472,14 @@ def deep_proc_token(token):
   if s != token:
     return tokenize_line(s)
 
+  ##### Final step: separate word-internal quotes in any position
+  # These needs to happen AFTER all of the other tokenization, so
+  # as to handle cases like value="hello" --> value = “ hello ”
+  s = token.replace('"', u' " ', 1)
+  if s != token:
+    return tokenize_line(s)
+
+
   ## no pattern applies
   return token
 
@@ -570,7 +599,7 @@ def tokenize(stream):
       line = re.sub('n \' t ', ' n\'t ', line, flags=re.IGNORECASE)
     line = line.strip()
     line = re.sub(r'(\d+)(\.+)$', r'\1 .', line)
-    line = re.sub(r'(\d+)(\.+)\s*\|\|\|', r'\1 . |||')
+    line = re.sub(r'(\d+)(\.+)\s*\|\|\|', r'\1 . |||', line)
     yield line
 
 def load_token_list(filename):
@@ -584,7 +613,7 @@ def load_token_list(filename):
 
 parser = argparse.ArgumentParser('Tokenizes text in a reasonable way for most languages. Reads input corpus from stdin and writes results to stdout.')
 parser.add_argument('--unbuffered', '-u', action='store_true', help='Use unbuffered line mode')
-parser.add_argument('--token_list', type=str, default='/usr1/home/austinma/git/cdec/corpus/support/token_list', help='List of tokens that should not be segmented')
+parser.add_argument('--token_list', type=str, default='/usr0/home/austinma/git/cdec/corpus/support/token_list', help='List of tokens that should not be segmented')
 parser.add_argument('--split_on_dollar_sign', type=int, default=2, help='0=Never split, 1=Always split, 2=Split only when followed by a number')
 parser.add_argument('--split_on_sharp_sign', type=int, default=2)
 parser.add_argument('--split_on_tilde', type=int, default=2)
